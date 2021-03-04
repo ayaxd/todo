@@ -1,6 +1,9 @@
+import { useContext } from 'react';
 import { InputBase, Paper, IconButton, Button } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import { fade, makeStyles } from '@material-ui/core/styles';
+import { useState } from 'react';
+import StoreApi from '../../utils/StoreApi';
 
 const useStyle = makeStyles((theme) => ({
   card: {
@@ -22,27 +25,57 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const InputCard = ({ setOpen }) => {
+const InputCard = ({ setOpen, listId, type }) => {
   const classes = useStyle();
+
+  const [title, setTitle] = useState('');
+
+  const { addCard, addList } = useContext(StoreApi);
+
+  const onChangeHandler = (e) => {
+    setTitle(e.target.value);
+  };
+
+  const btnConfirmHandler = () => {
+    if (type === 'card') {
+      addCard(title, listId);
+      setTitle('');
+      setOpen(false);
+    } else if ((type = 'list')) {
+      addList(title);
+      setTitle('');
+      setOpen(false);
+    }
+  };
 
   return (
     <div>
       <div>
         <Paper className={classes.card}>
           <InputBase
+            onChange={onChangeHandler}
+            value={title}
             multiline
             fullWidth
             inputProps={{ className: classes.input }}
-            placeholder='Enter a title of this card'
+            placeholder={
+              type === 'card'
+                ? `Enter content for this card..`
+                : `Enter the list title...`
+            }
             onBlur={() => setOpen(false)}
           ></InputBase>
         </Paper>
       </div>
       <div className={classes.confirm}>
-        <Button className={classes.btnConfirm} onClick={() => setOpen(false)}>
-          Add Card
+        <Button className={classes.btnConfirm} onClick={btnConfirmHandler}>
+          {type === 'card' ? 'Add Card' : 'Add List'}
         </Button>
-        <IconButton onClick={() => setOpen(false)}>
+        <IconButton
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
           <ClearIcon />
         </IconButton>
       </div>
